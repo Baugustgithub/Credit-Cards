@@ -28,18 +28,54 @@ if days_since_update > 90:
 # Spend Input
 st.header("Enter Your Estimated Monthly Spend")
 
-spend_categories = ['Gas', 'Groceries', 'Dining', 'Amazon', 'Travel', 'Retail', 'Bills', 'Streaming', 'Other']
-spend = {}
+# Grouped Categories
+st.subheader("🛒 Shopping / Retail")
+amazon_spend = st.number_input("Amazon Spend ($)", min_value=0.0, step=10.0)
+retail_spend = st.number_input("Retail Spend ($)", min_value=0.0, step=10.0)
+online_retail_spend = st.number_input("Online Retail Spend ($)", min_value=0.0, step=10.0)
+electronic_store_spend = st.number_input("Electronic Store Spend ($)", min_value=0.0, step=10.0)
 
-for category in spend_categories:
-    spend[category] = st.number_input(f"{category} Spend ($)", min_value=0.0, step=10.0)
+st.subheader("🍽️ Food and Dining")
+groceries_spend = st.number_input("Groceries Spend ($)", min_value=0.0, step=10.0)
+dining_spend = st.number_input("Dining Spend ($)", min_value=0.0, step=10.0)
+
+st.subheader("✈️ Transportation and Travel")
+gas_spend = st.number_input("Gas Spend ($)", min_value=0.0, step=10.0)
+travel_spend = st.number_input("Travel Spend ($)", min_value=0.0, step=10.0)
+fitness_spend = st.number_input("Fitness Clubs Spend ($)", min_value=0.0, step=10.0)
+
+st.subheader("⚡ Bills and Services")
+bills_spend = st.number_input("Bills Spend ($)", min_value=0.0, step=10.0)
+streaming_spend = st.number_input("Streaming Spend ($)", min_value=0.0, step=10.0)
+cell_phone_spend = st.number_input("Cell Phone Spend ($)", min_value=0.0, step=10.0)
+utilities_spend = st.number_input("Utilities Spend ($)", min_value=0.0, step=10.0)
+
+st.subheader("🔮 Other")
+other_spend = st.number_input("Other Spend ($)", min_value=0.0, step=10.0)
+
+# Spend dictionary
+spend = {
+    "amazon": amazon_spend,
+    "retail": retail_spend,
+    "online retail": online_retail_spend,
+    "electronic store": electronic_store_spend,
+    "groceries": groceries_spend,
+    "dining": dining_spend,
+    "gas": gas_spend,
+    "travel": travel_spend,
+    "fitness clubs": fitness_spend,
+    "bills": bills_spend,
+    "streaming": streaming_spend,
+    "cell phone": cell_phone_spend,
+    "utilities": utilities_spend,
+    "other": other_spend
+}
 
 # Results
 st.header("Optimization Results")
 
 results = []
 cashback_per_card = {}
-
 total_cashback = 0
 
 for category, amount in spend.items():
@@ -48,7 +84,7 @@ for category, amount in spend.items():
         cashback = amount * (rate / 100)
         total_cashback += cashback
         results.append({
-            "Category": category,
+            "Category": category.capitalize(),
             "Best Card": best_card,
             "Cashback Rate (%)": rate,
             "Expected Cashback ($)": cashback
