@@ -58,7 +58,7 @@ cards_data = [
     {
         "name": "Citi Custom Cash",
         "base_rate": 1.0,
-        "static_bonuses": {"highest spend category": 5},
+        "static_bonuses": {"dining": 5},  # Only apply to Dining
         "rotating_bonuses": [],
     },
     {
