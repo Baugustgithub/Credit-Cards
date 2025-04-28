@@ -71,25 +71,50 @@ spend = {
     "other": other_spend
 }
 
+# Which categories require Wallet Cards
+wallet_required_categories = {"gas", "groceries", "dining", "travel", "retail"}
+
 # Results
 st.header("Optimization Results")
 
 results = []
 cashback_per_card = {}
+wallet_cards_used = set()
+drawer_cards_used = set()
 total_cashback = 0
 
 for category, amount in spend.items():
     if amount > 0:
-        best_card, rate = find_best_card(cards_data, category)
-        cashback = amount * (rate / 100)
-        total_cashback += cashback
-        results.append({
-            "Category": category.capitalize(),
-            "Best Card": best_card,
-            "Cashback Rate (%)": rate,
-            "Expected Cashback ($)": cashback
-        })
-        cashback_per_card[best_card] = cashback_per_card.get(best_card, 0) + cashback
+        prefer_wallet = category in wallet_required_categories
+        existing_cards = wallet_cards_used.union(drawer_cards_used)
+
+        best_card, rate = find_best_card(
+            cards=cards_data,
+            category=category,
+            prefer_wallet_cards=prefer_wallet,
+            minimize_switching=True,
+            existing_wallet_cards=existing_cards
+        )
+
+        if best_card:
+            # Track cards used
+            for card in cards_data:
+                if card['name'] == best_card:
+                    if card.get('wallet_card', False):
+                        wallet_cards_used.add(best_card)
+                    else:
+                        drawer_cards_used.add(best_card)
+
+            cashback = amount * (rate / 100)
+            total_cashback += cashback
+
+            results.append({
+                "Category": category.capitalize(),
+                "Best Card": best_card,
+                "Cashback Rate (%)": rate,
+                "Expected Cashback ($)": cashback
+            })
+            cashback_per_card[best_card] = cashback_per_card.get(best_card, 0) + cashback
 
 results_df = pd.DataFrame(results)
 st.dataframe(results_df)
@@ -105,3 +130,10 @@ cashback_card_df = pd.DataFrame([
     for card, earned in cashback_per_card.items()
 ])
 st.dataframe(cashback_card_df)
+
+# Wallet vs Drawer card display
+st.subheader("Cards You Need to Carry")
+st.write(", ".join(sorted(wallet_cards_used)))
+
+st.subheader("Cards You Can Leave at Home (Drawer Cards)")
+st.write(", ".join(sorted(drawer_cards_used)))
